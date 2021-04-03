@@ -13,8 +13,6 @@ class Solution:
             if nums[i] != nums[j]:
                 j+=1
                 nums[j] = nums[i]
-            else:
-                continue
         return (j+1)
 #test
 print("test:\n")
