@@ -213,11 +213,11 @@
 
 ### gcc
 
-`-I` 头文件路径
+`-I` 指定头文件路径
 
-`-D`编译的时候指定宏
+`-D`编译的时候指定宏，控制log输出
 
-`-O[0|1|2|3]`制定优化方案
+`-O[1|2|3]`制定优化方案
 
 `-Wall` 警告信息
 
@@ -226,6 +226,13 @@
 `-c` 只编译子程序
 
 `-o` 指定生成文件名字
+
+**gcc 工作流程**
+
+1. 预处理 `gcc -E`
+2. 编译 `gcc -S`
+3. 汇编 `gcc -c`
+4. 链接 无参数
 
 ### 静态库
 
@@ -250,3 +257,103 @@
 `gcc main.c lib/libmytest.a -o sum -Iinclude`
 
 `gcc main.c -Iinclude -L lib -l MyCaclc -o sum`对第二条命令的解析 `-L`对应库文件夹`-l`库文件名(掐头去尾！！！去掉头部lib尾部.a) <u>没有顺序之分</u>
+
+### 静态库的优缺点
+
+使用静态库时，打包的最小单位就是`.o` ，用到哪个打包哪个。
+
+静态库的优点：
+
+- 发布程序的时候，不需要提供对应的库
+- 库的加载速度快、
+
+静态库的缺点：
+
+- 会把库打包到程序中，导致软件的体积大
+- 库发生了改变，应用程序需要重新编译
+
+### 共享库
+
+对应于windows中的`dll`
+
+- 命名规则
+
+  1. 生成与位置无关的`.o` 
+
+     ```bash
+     gcc -fPIC -c *.c -Iinclude#生成与位置无关的.o
+     ```
+
+     ![Screenshot from 2021-04-04 22-45-06](/home/pc330/Pictures/Screenshot from 2021-04-04 22-45-06.png)
+
+  2. 将`.o` 打包为共享库(动态库)
+
+     ```bash
+     gcc -shared -o libxxx.so *.o -Iinclude
+     ```
+
+     如何使用动态库
+
+     ```bash
+     gcc main.c lib/libxxx.so -o app(.out) -Iinclude #方式1
+     gcc main.c -Iinclude -L./lib -l(libxxx.so只保留xxx部分) -o app
+     ```
+
+     `ldd+a.out`查看可执行文件在执行时所依赖的所有共享库。
+
+     动态链接器`ld-x86_64.so.2`会自动调用，根据某个环境变量区查找
+
+     ```bash
+     echo $PATH
+     ```
+
+     `/lib`Linux系统在执行过程中用到的库
+
+     
+
+     - 可以将上述`libxxx.so`拷贝进入/lib后，程序即可正常运行『但上述方法不可在实际中使用！！！』
+
+     - 经典方法(需掌握)
+
+       1. 找到动态链接器的配置文件`/etc/ld.so.conf`
+       2. 动态库的路径写到配置文件中
+       3. 更新 `sudo ldconfig -v`
+
+     - 配置`LD_LIBRARY_PATH` 环境变量，赋值。这种方法使得程序先在该环境变量中搜索库。(临时)。当把当前bash关掉后，失效。『开发过程中测试使用』
+
+     - 实现永久设置：实现当前用户的bash设置，编辑`.bashrc` 终端启动的时候会读取`.bahsrc`
+
+       添加`export LD_LIBRARY_PATH=xxxx/lib(绝对路径)` `source .bashrc`生效或者重启终端。
+
+       ```bash
+       export LD_LIBRARY_PATH=./lib
+       ```
+
+        
+
+       ```bash
+       sudo cp ./lib/libxxx.so /lib
+       ```
+
+  
+
+  *程序启动之后才进行加载动态库(使用相对地址)*
+
+  ### 动态库的优缺点
+
+  优点：
+
+  - 执行程序小
+  - 动态库更新不需要重新编译程序(前提是接口没变)
+
+  缺点：
+
+  - 发布程序的时候，需要将动态库提供给用户
+  - 动态库没有被打包到应用程序中，加载速度相对慢
+
+  
+
+  
+
+  
+
