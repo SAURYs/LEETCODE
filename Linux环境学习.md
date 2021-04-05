@@ -234,7 +234,7 @@
 3. 汇编 `gcc -c`
 4. 链接 无参数
 
-### 静态库
+### 静态库(使用C++ 时用g++而非gcc)
 
 源代码就是核心技术，将源代码生成库和头文件。
 
@@ -256,7 +256,7 @@
 
 `gcc main.c lib/libmytest.a -o sum -Iinclude`
 
-`gcc main.c -Iinclude -L lib -l MyCaclc -o sum`对第二条命令的解析 `-L`对应库文件夹`-l`库文件名(掐头去尾！！！去掉头部lib尾部.a) <u>没有顺序之分</u>
+`gcc main.c -Iinclude -L libpath -l MyCaclc -o sum`对第二条命令的解析 `-L`对应库文件夹`-l`库文件名(掐头去尾！！！去掉头部lib尾部.a) <u>没有顺序之分</u>
 
 ### 静态库的优缺点
 
