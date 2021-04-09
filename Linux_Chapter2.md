@@ -102,3 +102,70 @@ C库函数：
 ### C库函数与系统函数的关系
 
 ![ image-20210407233429709](C:\Users\volca\AppData\Roaming\Typora\typora-user-images\image-20210407233429709.png)
+
+------
+
+
+
+#### open函数
+
+Linux系统函数，`man man ` 九个章节，第二章系统函数，`man 章节号 函数名`，查询函数说明。
+
+`int open(const char *pathname, int flags);`
+
+`int open(const char *pathname, int flags, mode_t mode)`
+
+返回值返回一个文件描述符，如果返回值为-1(errno 被设置)
+
+`perror`可读取相应的错误信息。
+
+open函数权限值的设置8进制数`0xxx`,且其真实权限要去与umask值取反按位与。`umask`在终端获得umask值。
+
+打开方式:
+
+	- 必选项 O_RDONLY, OWRONLY, ORDWR.
+	- 可选项 O_CREAT ,O_TRUNC,O_EXCL,O_APPEND
+
+创建文件+O_CREAT
+
+open函数判断文件是否存在
+
+`fd = open("hello.c",O_RDWR|O_CREAT|O_EXCL)`
+
+#### lseek
+
+lseek的扩展，将文件向后变大。
+
+向后拓展2000byte。
+
+```c
+int ret = lseek(fd,2000,SEEK_END);
+//实现文件拓展，需要最后进行一次写操作，不然没法完成
+write(fd,"a",1);//随便写东西
+```
+
+产生的东西叫空洞，打印不出来的，但确实占用了空间，先给文件大小，给多线程写文件有方便。
+
+#### 文件操作系统函数
+
+- stat 获取文件属性信息
+
+  传入参数，传出参数，下面的结构体类型为传出参数。
+
+  ```c
+  int stat(const char *pathname, struct stat *statbuf);
+  int fstat(int fd, struct stat *statbuf);
+  int lstat(const char *pathname, struct stat *statbuf);
+  ```
+
+  该结构体struct中的内容，每个位是什么意思？
+
+  一般来说以f开头的函数，要传入fd,文件描述符。
+
+  `lstat`读出软链接本身的链接的大小 "非穿透函数"，不跟踪
+
+  `stat`独处的是链接到的函数，"穿透函数"，不跟踪
+
+  例如`ls -l` 不穿透`rm`不追踪
+
+  用stat实现`ls -l`时需注意这个。
